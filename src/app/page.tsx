@@ -4,6 +4,11 @@ import { categories, products } from "../data/products";
 const logoUrl = "https://www.jvision-ai.com/public/logo.png";
 
 export default function Home() {
+  const categoryOverview = categories.map((name) => ({
+    name,
+    count: products.filter((product) => product.category === name).length,
+  }));
+
   return (
     <main>
       <header className="site-header">
@@ -22,10 +27,10 @@ export default function Home() {
       </header>
 
       <section className="hero" id="top">
-        <div className="hero-copy">
-          <p className="eyebrow">Jvision Interactive Demo Gallery</p>
-          <h1>看見每一套系統，<em>真正運作</em>的樣子。</h1>
-          <p>這裡不是只有功能清單。你可以依照產業與工作情境探索，直接進入每一套 Jvision Demo 操作流程。</p>
+        <div className="hero-intro">
+          <p className="eyebrow">Jvision Interactive Demo Center</p>
+          <h1><em>{products.length} 套系統</em>，<br />集中在一個展示館。</h1>
+          <p>從企業營運、製造工程到零售服務，依照你關心的工作情境開始探索，直接進入可操作的 Jvision Demo。</p>
           <div className="hero-actions">
             <a className="primary-button" href="#gallery">探索全部 Demo</a>
             <a className="secondary-button" href="#highlights">了解展示方式</a>
@@ -36,16 +41,20 @@ export default function Home() {
             <span><b>RWD</b><small>手機也能體驗</small></span>
           </div>
         </div>
-        <div className="hero-display" aria-label="展示館精選系統">
-          <div className="display-top"><span /><span /><span /><b>Jvision Gallery</b></div>
-          <div className="display-feature">
-            <span>本月精選</span>
-            <strong>智慧門市 POS</strong>
-            <p>從收銀到營運分析，一個畫面完整體驗。</p>
+
+        <div className="hero-catalog" aria-label="Demo 應用分類">
+          <div className="hero-catalog-heading">
+            <span>Browse the collection</span>
+            <strong>依照工作情境快速進入</strong>
           </div>
-          <div className="display-row">
-            <div><span>企業營運</span><b>人資薪酬招募</b></div>
-            <div><span>製造工程</span><b>設備維護管理</b></div>
+          <div className="hero-category-grid">
+            {categoryOverview.map((category, index) => (
+              <a href="#gallery" key={category.name}>
+                <span>{String(index + 1).padStart(2, "0")}</span>
+                <b>{category.name}</b>
+                <small>{category.count} 個 Demo</small>
+              </a>
+            ))}
           </div>
         </div>
       </section>
