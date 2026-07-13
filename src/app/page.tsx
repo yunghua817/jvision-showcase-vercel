@@ -3,7 +3,17 @@ import { categories, products } from "../data/products";
 
 const logoUrl = "https://www.jvision-ai.com/public/logo.png";
 
-export default function Home() {
+type HomeProps = {
+  searchParams: Promise<{ category?: string | string[] }>;
+};
+
+export default async function Home({ searchParams }: HomeProps) {
+  const params = await searchParams;
+  const requestedCategory = Array.isArray(params.category) ? params.category[0] : params.category;
+  const initialCategory = requestedCategory && categories.includes(requestedCategory)
+    ? requestedCategory
+    : "全部";
+
   const featuredNames = ["人資薪酬招募管理", "理賠案件管理平台", "ESG 能源與碳管理平台"];
   const featured = featuredNames
     .map((name) => products.find((product) => product.name === name))
@@ -86,7 +96,7 @@ export default function Home() {
           </div>
           <div className="museum-category-grid">
             {categoryOverview.map((category) => (
-              <a href="#gallery" key={category.name}>
+              <a href={`/?category=${encodeURIComponent(category.name)}#gallery`} key={category.name}>
                 <span>探索</span>
                 <strong>{category.name}</strong>
                 <small>{category.count} 個展示頁</small>
@@ -96,7 +106,7 @@ export default function Home() {
         </section>
       </div>
 
-      <ShowcaseGallery products={products} categories={categories} />
+      <ShowcaseGallery products={products} categories={categories} initialCategory={initialCategory} />
 
       <footer>
         <div><img src={logoUrl} alt="JVision" /><strong>Jvision 產品展示館</strong></div>

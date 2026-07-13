@@ -5,9 +5,17 @@ import type { Product } from "../data/products";
 
 const tones = ["coral", "teal", "blue", "amber", "violet", "green"];
 
-export function ShowcaseGallery({ products, categories }: { products: Product[]; categories: string[] }) {
+export function ShowcaseGallery({
+  products,
+  categories,
+  initialCategory = "全部",
+}: {
+  products: Product[];
+  categories: string[];
+  initialCategory?: string;
+}) {
   const [query, setQuery] = useState("");
-  const [category, setCategory] = useState("全部");
+  const [category, setCategory] = useState(initialCategory);
 
   const filtered = useMemo(() => {
     const needle = query.trim().toLocaleLowerCase("zh-TW");
