@@ -4,7 +4,7 @@
 
 ## 線上展示
 
-[https://jvision-showcase-vercel.vercel.app/](https://jvision-showcase-vercel.vercel.app/)
+[https://jvision-demo-showcase.vercel.app/](https://jvision-demo-showcase.vercel.app/)
 
 ## 展示館功能
 
