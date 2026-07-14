@@ -9,6 +9,7 @@
   },
   "dependencies": {
     "@vercel/analytics": "latest",
+    "@vercel/blob": "^2.6.1",
     "next": "latest",
     "react": "latest",
     "react-dom": "latest"

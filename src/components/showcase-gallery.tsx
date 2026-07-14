@@ -175,7 +175,7 @@ export function ShowcaseGallery({
               <button type="button" onClick={() => setPosterProduct(null)} aria-label="關閉海報">×</button>
             </div>
             <div className="poster-dialog-body">
-              <img src={`/posters/${posterProduct.slug}.png`} alt={`${posterProduct.name} 產品海報`} width="1240" height="1754" />
+              <img src={posterProduct.posterUrl || `/posters/${posterProduct.slug}.png`} alt={`${posterProduct.name} 產品海報`} width="1240" height="1754" />
             </div>
             <div className="poster-dialog-actions">
               <button type="button" onClick={() => setPosterProduct(null)}>返回展示館</button>

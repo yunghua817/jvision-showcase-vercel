@@ -1,5 +1,5 @@
 import { ShowcaseGallery } from "../components/showcase-gallery";
-import { categories, products } from "../data/products";
+import { getManagedProducts } from "../lib/products-store";
 
 const logoUrl = "https://www.jvision-ai.com/public/logo.png";
 
@@ -7,7 +7,11 @@ type HomeProps = {
   searchParams: Promise<{ category?: string | string[] }>;
 };
 
+export const dynamic = "force-dynamic";
+
 export default async function Home({ searchParams }: HomeProps) {
+  const products = (await getManagedProducts()).filter((product) => product.visible !== false);
+  const categories = Array.from(new Set(products.map((product) => product.category)));
   const params = await searchParams;
   const requestedCategory = Array.isArray(params.category) ? params.category[0] : params.category;
   const initialCategory = requestedCategory && categories.includes(requestedCategory)
@@ -84,7 +88,7 @@ export default async function Home({ searchParams }: HomeProps) {
 
       <footer>
         <div><img src={logoUrl} alt="JVision" /><strong>Jvision Demo 展示館</strong></div>
-        <span>{products.length} 套可操作的 Jvision 系統展示。</span>
+        <span>{products.length} 套可操作的 Jvision 系統展示 · <a href="/admin">管理後台</a></span>
       </footer>
     </main>
   );

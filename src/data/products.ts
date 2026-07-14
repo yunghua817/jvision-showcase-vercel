@@ -1,4 +1,4 @@
-export type Product = { id: number; name: string; module: string; description: string; demoUrl: string; githubUrl: string; category: string; slug: string; };
+export type Product = { id: number; name: string; module: string; description: string; demoUrl: string; githubUrl: string; posterUrl?: string; category: string; slug: string; visible?: boolean; };
 
 type CatalogProduct = Omit<Product, "githubUrl">;
 
