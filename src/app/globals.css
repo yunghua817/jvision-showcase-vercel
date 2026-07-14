@@ -412,6 +412,15 @@ footer img { width: 126px; }
 .admin-header p { margin: 0; color: #65736f; }
 .admin-header-actions { display: flex; gap: 8px; }
 .admin-header-actions a, .admin-header-actions button, .admin-editor-title button { border: 1px solid #c9d6d2; border-radius: 10px; padding: 10px 13px; background: #fff; color: #30433f; font: inherit; font-weight: 800; cursor: pointer; }
+.admin-password-panel { display: grid; max-width: 1500px; grid-template-columns: 1.2fr repeat(3,minmax(150px,1fr)) auto; align-items: end; gap: 14px; margin: 0 auto 16px; border: 1px solid #d5e0dc; border-radius: 18px; padding: 18px; background: #fff; box-shadow: 0 16px 45px rgba(37,55,51,.06); }
+.admin-password-panel > div:first-child span { color: #25847d; font-size: 11px; font-weight: 900; letter-spacing: .07em; text-transform: uppercase; }
+.admin-password-panel h2 { margin: 4px 0; font-size: 20px; }
+.admin-password-panel p { margin: 0; color: #71807b; font-size: 12px; }
+.admin-password-panel label { display: grid; gap: 6px; color: #40514d; font-size: 12px; font-weight: 800; }
+.admin-password-panel input { width: 100%; border: 1px solid #cbd9d5; border-radius: 10px; padding: 11px 12px; font: inherit; }
+.admin-password-panel button { border: 0; border-radius: 10px; padding: 12px 16px; background: #237d75; color: #fff; font-weight: 900; cursor: pointer; }
+.admin-password-panel button:disabled { opacity: .55; }
+.admin-password-message { grid-column: 2 / -1; border-radius: 9px; padding: 9px 11px; background: #e9f5f1; color: #166458; font-size: 12px; }
 .admin-workspace { display: grid; max-width: 1500px; min-height: calc(100vh - 160px); grid-template-columns: minmax(290px, 380px) minmax(0,1fr); gap: 16px; margin: 0 auto; }
 .admin-list-panel, .admin-editor { border: 1px solid #d5e0dc; border-radius: 20px; background: #fff; box-shadow: 0 16px 45px rgba(37,55,51,.06); }
 .admin-list-panel { overflow: hidden; }
@@ -451,6 +460,8 @@ footer img { width: 126px; }
   .admin-product-list { max-height: 320px; }
   .admin-form-grid { grid-template-columns: 1fr; }
   .admin-field-wide { grid-column: auto; }
+  .admin-password-panel { grid-template-columns: 1fr; }
+  .admin-password-message { grid-column: auto; }
 }
 
 @media (max-width: 520px) {

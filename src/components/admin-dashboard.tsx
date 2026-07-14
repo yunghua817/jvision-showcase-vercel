@@ -19,6 +19,11 @@ export function AdminDashboard({ authenticated, initialProducts }: Props) {
   const [query, setQuery] = useState("");
   const [message, setMessage] = useState("");
   const [busy, setBusy] = useState(false);
+  const [showPasswordForm, setShowPasswordForm] = useState(false);
+  const [currentPassword, setCurrentPassword] = useState("");
+  const [newPassword, setNewPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [passwordMessage, setPasswordMessage] = useState("");
   const selectedIndex = products.findIndex((product) => product.id === selectedId);
   const selected = products[selectedIndex];
   const filteredProducts = useMemo(() => {
@@ -79,6 +84,24 @@ export function AdminDashboard({ authenticated, initialProducts }: Props) {
     setBusy(false);
   }
 
+  async function changePassword(event: FormEvent) {
+    event.preventDefault();
+    if (newPassword !== confirmPassword) {
+      setPasswordMessage("兩次輸入的新密碼不一致");
+      return;
+    }
+    setBusy(true); setPasswordMessage("更新中…");
+    const response = await fetch("/api/admin/password", {
+      method: "PUT", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ currentPassword, newPassword }),
+    });
+    const data = await response.json().catch(() => ({}));
+    if (response.ok) {
+      setCurrentPassword(""); setNewPassword(""); setConfirmPassword("");
+      setPasswordMessage("密碼已更新，下次登入請使用新密碼");
+    } else setPasswordMessage(data.message || "密碼更新失敗");
+    setBusy(false);
+  }
+
   if (!authenticated) return (
     <main className="admin-login-page">
       <form className="admin-login-card" onSubmit={login}>
@@ -96,8 +119,18 @@ export function AdminDashboard({ authenticated, initialProducts }: Props) {
     <main className="admin-page">
       <header className="admin-header">
         <div><span>Jvision Showcase</span><h1>Demo 管理後台</h1><p>共 {products.length} 個專案，變更後請按「儲存全部」。</p></div>
-        <div className="admin-header-actions"><a href="/" target="_blank" rel="noreferrer">查看展示館 ↗</a><button type="button" onClick={logout}>登出</button></div>
+        <div className="admin-header-actions"><a href="/" target="_blank" rel="noreferrer">查看展示館 ↗</a><button type="button" onClick={() => setShowPasswordForm((visible) => !visible)}>更改密碼</button><button type="button" onClick={logout}>登出</button></div>
       </header>
+      {showPasswordForm && (
+        <form className="admin-password-panel" onSubmit={changePassword}>
+          <div><span>帳號安全</span><h2>更改管理密碼</h2><p>新密碼至少 10 個字元，更新後下次登入立即生效。</p></div>
+          <label>目前密碼<input type="password" value={currentPassword} onChange={(event) => setCurrentPassword(event.target.value)} autoComplete="current-password" required /></label>
+          <label>新密碼<input type="password" minLength={10} value={newPassword} onChange={(event) => setNewPassword(event.target.value)} autoComplete="new-password" required /></label>
+          <label>再次輸入新密碼<input type="password" minLength={10} value={confirmPassword} onChange={(event) => setConfirmPassword(event.target.value)} autoComplete="new-password" required /></label>
+          <button type="submit" disabled={busy}>{busy ? "處理中…" : "確認更改密碼"}</button>
+          {passwordMessage && <div className="admin-password-message" aria-live="polite">{passwordMessage}</div>}
+        </form>
+      )}
       <div className="admin-workspace">
         <aside className="admin-list-panel">
           <div className="admin-list-tools"><input aria-label="搜尋 Demo" placeholder="搜尋名稱、分類或模組" value={query} onChange={(event) => setQuery(event.target.value)} /><button type="button" onClick={addProduct}>＋ 新增 Demo</button></div>
