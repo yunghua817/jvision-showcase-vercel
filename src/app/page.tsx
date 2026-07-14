@@ -40,6 +40,7 @@ export default async function Home({ searchParams }: HomeProps) {
             <a href="#curator-categories">分類</a>
             <a href="#gallery">全部 Demo</a>
             <a href="https://github.com/yunghua817">我的 GitHub ↗</a>
+            <a className="curator-admin-link" href="/admin">管理後台</a>
             <a className="curator-nav-action" href="#gallery">開始探索</a>
           </nav>
         </header>

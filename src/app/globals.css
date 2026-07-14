@@ -330,6 +330,7 @@ footer img { width: 126px; }
 .curator-brand strong { font-size: 16px; }
 .curator-brand small { color: #7d858e; font-size: 11px; letter-spacing: .04em; }
 .curator-header nav { display: flex; align-items: center; gap: 20px; color: #5e6874; font-weight: 800; }
+.curator-admin-link { border: 1px solid rgba(34,59,57,.2); border-radius: 999px; padding: 10px 15px; background: rgba(255,255,255,.5); color: #223b39; }
 .curator-nav-action { border-radius: 999px; padding: 11px 17px; background: #223b39; color: #fff; }
 
 .curator-hero { max-width: 900px; margin: 0 auto; padding: clamp(60px,8vw,108px) 0 clamp(48px,6vw,78px); text-align: center; }
