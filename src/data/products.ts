@@ -2,15 +2,6 @@ export type Product = { id: number; name: string; module: string; description: s
 
 const catalog: Product[] = [
   {
-    "id": 1,
-    "name": "訂單與庫存",
-    "module": "Order & Inventory",
-    "description": "整合訂單、庫存與進出貨管理 Demo",
-    "demoUrl": "https://jvision-order-inventory.vercel.app",
-    "category": "????????",
-    "slug": "demo-01"
-  },
-  {
     "id": 2,
     "name": "生產工單",
     "module": "Production Order",
@@ -18,33 +9,6 @@ const catalog: Product[] = [
     "demoUrl": "https://jvision-production-order.vercel.app",
     "category": "????????",
     "slug": "demo-02"
-  },
-  {
-    "id": 3,
-    "name": "精實管理",
-    "module": "Lean Management",
-    "description": "整合現場改善、品質、設備與5S的無程式碼閉環系統",
-    "demoUrl": "https://jvision-lean-demo.vercel.app",
-    "category": "????",
-    "slug": "demo-03"
-  },
-  {
-    "id": 4,
-    "name": "設備維護",
-    "module": "Maintenance",
-    "description": "整合報修、巡檢、保養與備品管理的維護平台",
-    "demoUrl": "https://jvision-maintenance-demo-2026062820.vercel.app",
-    "category": "????????",
-    "slug": "demo-04"
-  },
-  {
-    "id": 5,
-    "name": "售後工單",
-    "module": "Work Order",
-    "description": "售後服務工單流程管理平台",
-    "demoUrl": "https://jvision-work-order-demo.vercel.app",
-    "category": "????????",
-    "slug": "demo-05"
   },
   {
     "id": 6,
@@ -56,24 +20,6 @@ const catalog: Product[] = [
     "slug": "demo-06"
   },
   {
-    "id": 7,
-    "name": "專案管理",
-    "module": "Project Management",
-    "description": "整合排程、任務、成本與簽核的專案工作區",
-    "demoUrl": "https://jvision-demo.vercel.app",
-    "category": "????",
-    "slug": "demo-07"
-  },
-  {
-    "id": 8,
-    "name": "任務管理",
-    "module": "Task Management",
-    "description": "任務組織、追蹤與完成的管理系統",
-    "demoUrl": "https://jvision-task-demo.vercel.app",
-    "category": "????",
-    "slug": "demo-08"
-  },
-  {
     "id": 9,
     "name": "營建工程",
     "module": "Construction",
@@ -81,15 +27,6 @@ const catalog: Product[] = [
     "demoUrl": "https://jvision-construction.vercel.app",
     "category": "????????",
     "slug": "demo-09"
-  },
-  {
-    "id": 10,
-    "name": "EHS 環安衛儀表板",
-    "module": "環安衛安全總覽",
-    "description": "職業安全衛生監督管理數位平台",
-    "demoUrl": "https://ehs-jodoo-style-dashboard.vercel.app",
-    "category": "????",
-    "slug": "demo-10"
   },
   {
     "id": 11,
