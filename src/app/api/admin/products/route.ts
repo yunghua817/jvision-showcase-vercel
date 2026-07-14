@@ -1,6 +1,5 @@
 import { NextResponse } from "next/server";
 import type { Product } from "../../../../data/products";
-import { isAdminAuthenticated } from "../../../../lib/admin-auth";
 import { getManagedProducts, saveManagedProducts } from "../../../../lib/products-store";
 
 function validUrl(value: string, allowRelative = false) {
@@ -28,15 +27,11 @@ function validateProducts(value: unknown): value is Product[] {
   });
 }
 
-const unauthorized = () => NextResponse.json({ message: "請先登入管理後台" }, { status: 401 });
-
 export async function GET() {
-  if (!await isAdminAuthenticated()) return unauthorized();
   return NextResponse.json({ products: await getManagedProducts() });
 }
 
 export async function PUT(request: Request) {
-  if (!await isAdminAuthenticated()) return unauthorized();
   const body = await request.json().catch(() => null) as { products?: unknown } | null;
   if (!validateProducts(body?.products)) return NextResponse.json({ message: "資料格式不正確，請檢查必填欄位與網址" }, { status: 400 });
   await saveManagedProducts(body.products);
