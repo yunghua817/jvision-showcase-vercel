@@ -3,8 +3,6 @@
 import { useMemo, useState } from "react";
 import type { Product } from "../data/products";
 
-const tones = ["coral", "teal", "blue", "amber", "violet", "green"];
-
 export function ShowcaseGallery({
   products,
   categories,
@@ -69,14 +67,18 @@ export function ShowcaseGallery({
 
         {filtered.length ? (
           <div className="gallery-grid">
-            {filtered.map((product, index) => (
+            {filtered.map((product) => (
               <article className="demo-card" key={product.slug}>
                 <a className="card-main" href={product.demoUrl} aria-label={`開啟 ${product.name} Demo`}>
-                  <div className={`card-visual tone-${tones[index % tones.length]}`}>
-                    <span>{product.category}</span>
-                    <b>{String(product.id).padStart(2, "0")}</b>
-                    <strong>{product.name}</strong>
-                    <i>JV</i>
+                  <div className="card-poster">
+                    <img
+                      src={`/posters/${product.slug}.png`}
+                      alt={`${product.name} 產品海報`}
+                      width="1240"
+                      height="1754"
+                      loading="lazy"
+                      decoding="async"
+                    />
                   </div>
                   <div className="card-copy">
                     <div className="card-meta">

@@ -129,6 +129,9 @@ h1 { max-width: 850px; margin: 0 0 26px; color: #10243f; font-size: clamp(48px, 
 .demo-card { overflow: hidden; border: 1px solid #d6e0e7; border-radius: 26px; background: #fff; box-shadow: 0 18px 50px rgba(22,45,68,.07); transition: transform .2s ease, box-shadow .2s ease; }
 .demo-card:hover { transform: translateY(-5px); box-shadow: 0 24px 60px rgba(22,45,68,.12); }
 .card-main { display: block; padding: 16px 16px 0; }
+.card-poster { overflow: hidden; border: 1px solid #dfe7e7; border-radius: 19px; aspect-ratio: 1240 / 1754; background: #f3f6f4; }
+.card-poster img { display: block; width: 100%; height: 100%; object-fit: cover; transition: transform .35s ease; }
+.demo-card:hover .card-poster img { transform: scale(1.015); }
 .card-visual { position: relative; display: grid; min-height: 215px; align-content: end; overflow: hidden; border-radius: 19px; padding: 22px; color: #fff; }
 .card-visual::after { content: ""; position: absolute; inset: auto -30px -65px auto; width: 180px; height: 180px; border: 1px solid rgba(255,255,255,.28); border-radius: 50%; }
 .card-visual > span { position: absolute; top: 20px; left: 20px; border-radius: 999px; padding: 7px 10px; background: rgba(255,255,255,.16); font-size: 12px; font-weight: 900; backdrop-filter: blur(9px); }
@@ -190,7 +193,7 @@ footer img { width: 126px; }
   .featured-grid { grid-template-columns: 1fr; grid-template-rows: auto; min-height: 0; }
   .featured-card, .featured-card-1 { grid-row: auto; min-height: 320px; }
   .highlight-grid, .gallery-grid, .explore-heading, .detail-content { grid-template-columns: 1fr; }
-  .filter-panel { top: 146px; }
+  .filter-panel { position: static; }
   .result-row, footer { align-items: flex-start; flex-direction: column; }
   .card-copy p { min-height: 0; }
 }
