@@ -24,7 +24,7 @@ const catalog: Product[] = [
     "name": "精實管理",
     "module": "Lean Management",
     "description": "整合現場改善、品質、設備與5S的無程式碼閉環系統",
-    "demoUrl": "https://jvision-lean-demo.vercel.app",
+    "demoUrl": "https://jvision-lean-demo-pi.vercel.app",
     "category": "????",
     "slug": "demo-03"
   },
