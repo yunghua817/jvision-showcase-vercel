@@ -107,6 +107,9 @@ export function ShowcaseGallery({
                   <button type="button" className="poster-button" onClick={() => setPosterProduct(product)}>
                     查看海報
                   </button>
+                  <a className="github-button" href={product.githubUrl}>
+                    GitHub <span aria-hidden="true">↗</span>
+                  </a>
                   <a className="open-demo" href={product.demoUrl}>
                     進入 Demo <span aria-hidden="true">↗</span>
                   </a>
@@ -141,6 +144,7 @@ export function ShowcaseGallery({
             </div>
             <div className="poster-dialog-actions">
               <button type="button" onClick={() => setPosterProduct(null)}>返回展示館</button>
+              <a className="poster-github-link" href={posterProduct.githubUrl}>查看 GitHub <span aria-hidden="true">↗</span></a>
               <a href={posterProduct.demoUrl}>進入 Demo <span aria-hidden="true">↗</span></a>
             </div>
           </section>

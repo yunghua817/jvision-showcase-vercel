@@ -147,10 +147,13 @@ h1 { max-width: 850px; margin: 0 0 26px; color: #10243f; font-size: clamp(48px, 
 .card-copy h3 { margin: 14px 0 10px; font-size: 24px; line-height: 1.25; }
 .card-copy p { min-height: 76px; margin-bottom: 14px; color: var(--muted); line-height: 1.65; }
 .card-copy small { display: block; overflow: hidden; color: #8894a4; text-overflow: ellipsis; white-space: nowrap; }
-.card-actions { display: grid; grid-template-columns: .85fr 1.15fr; border-top: 1px solid #e3eaef; }
-.poster-button, .open-demo { display: flex; min-height: 54px; align-items: center; justify-content: center; border: 0; background: #fff; color: var(--navy); cursor: pointer; font: inherit; font-weight: 900; }
-.poster-button { border-right: 1px solid #e3eaef; color: var(--teal); }
+.card-actions { display: grid; grid-template-columns: .9fr .82fr 1.18fr; border-top: 1px solid #e3eaef; }
+.poster-button, .github-button, .open-demo { display: flex; min-height: 54px; align-items: center; justify-content: center; border: 0; background: #fff; color: var(--navy); cursor: pointer; font: inherit; font-weight: 900; }
+.poster-button, .github-button { border-right: 1px solid #e3eaef; }
+.poster-button { color: var(--teal); }
 .poster-button:hover { background: #eef7f5; }
+.github-button { gap: 6px; color: #596579; }
+.github-button:hover { background: #f5f7fa; color: var(--navy); }
 .open-demo { justify-content: space-between; padding: 0 22px; }
 .open-demo:hover { background: #f5f7fa; }
 .open-demo span { font-size: 19px; }
@@ -166,6 +169,7 @@ h1 { max-width: 850px; margin: 0 0 26px; color: #10243f; font-size: clamp(48px, 
 .poster-dialog-actions { display: flex; justify-content: flex-end; gap: 10px; padding: 15px 20px; background: #fff; }
 .poster-dialog-actions button, .poster-dialog-actions a { display: inline-flex; min-height: 44px; align-items: center; justify-content: center; border: 1px solid #d7e1df; border-radius: 999px; padding: 0 18px; background: #fff; color: var(--navy); cursor: pointer; font: inherit; font-weight: 900; }
 .poster-dialog-actions a { border-color: var(--navy); background: var(--navy); color: #fff; }
+.poster-dialog-actions .poster-github-link { border-color: #d7e1df; background: #fff; color: var(--navy); }
 .empty-state { border: 1px dashed #bac9d4; border-radius: 24px; padding: 50px 24px; background: rgba(255,255,255,.68); text-align: center; }
 .empty-state strong { font-size: 22px; }
 .empty-state p { margin: 10px 0 20px; color: var(--muted); }
@@ -212,7 +216,7 @@ footer img { width: 126px; }
   .poster-modal { padding: 10px; }
   .poster-dialog { max-height: calc(100vh - 20px); border-radius: 20px; }
   .poster-dialog-body { padding: 12px; }
-  .poster-dialog-actions { display: grid; grid-template-columns: 1fr 1fr; }
+  .poster-dialog-actions { display: grid; grid-template-columns: 1fr; }
   .card-copy p { min-height: 0; }
 }
 
@@ -369,8 +373,9 @@ footer img { width: 126px; }
   .curator-shell { padding: 0 15px; }
   .curator-header { align-items: flex-start; flex-direction: column; padding: 18px 0; }
   .curator-brand small { display: none; }
-  .curator-header nav { width: 100%; justify-content: space-between; gap: 8px; font-size: 13px; }
-  .curator-nav-action { padding: 9px 12px; }
+  .curator-header nav { display: grid; width: 100%; grid-template-columns: 1fr 1fr; gap: 8px; font-size: 13px; }
+  .curator-header nav a { display: flex; min-height: 40px; align-items: center; justify-content: center; border: 1px solid rgba(34,59,57,.14); border-radius: 999px; padding: 8px 10px; background: rgba(255,255,255,.48); }
+  .curator-header nav .curator-nav-action { border-color: #223b39; padding: 8px 10px; background: #223b39; }
   .curator-hero { padding-top: 56px; }
   .curator-hero h1 { font-size: 43px; }
   .curator-actions a { width: 100%; }

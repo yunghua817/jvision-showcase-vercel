@@ -1,6 +1,8 @@
-export type Product = { id: number; name: string; module: string; description: string; demoUrl: string; category: string; slug: string; };
+export type Product = { id: number; name: string; module: string; description: string; demoUrl: string; githubUrl: string; category: string; slug: string; };
 
-const catalog: Product[] = [
+type CatalogProduct = Omit<Product, "githubUrl">;
+
+const catalog: CatalogProduct[] = [
   {
     "id": 2,
     "name": "生產工單",
@@ -516,7 +518,7 @@ const catalog: Product[] = [
   }
 ];
 
-function classify(product: Product) {
+function classify(product: CatalogProduct) {
   const text = `${product.name} ${product.module}`;
   if (/碳|能源|ESG|環安衛|EHS/.test(text)) return "ESG 與永續";
   if (/診所|牙科|藥局|照護|教育|課程|學習/.test(text)) return "教育與照護";
@@ -528,5 +530,19 @@ function classify(product: Product) {
   return "協作與管理";
 }
 
-export const products = catalog.map((product) => ({ ...product, category: classify(product) }));
+const repositoryOverrides: Record<string, string> = {
+  "jvision-construction-management-sui.vercel.app": "jvision-construction-management-suite",
+};
+
+function getGithubUrl(product: CatalogProduct) {
+  const hostname = product.demoUrl.replace(/^https?:\/\//, "").replace(/\/.*$/, "");
+  const repository = repositoryOverrides[hostname] ?? hostname.replace(/\.vercel\.app$/, "");
+  return `https://github.com/yunghua817/${repository}`;
+}
+
+export const products = catalog.map((product) => ({
+  ...product,
+  category: classify(product),
+  githubUrl: getGithubUrl(product),
+}));
 export const categories = Array.from(new Set(products.map((product) => product.category)));

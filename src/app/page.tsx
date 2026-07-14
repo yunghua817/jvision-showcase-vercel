@@ -14,7 +14,7 @@ export default async function Home({ searchParams }: HomeProps) {
     ? requestedCategory
     : "全部";
 
-  const showcaseNames = ["人資薪酬招募管理", "訂單與庫存", "理賠案件管理平台", "ESG 能源與碳管理平台"];
+  const showcaseNames = ["人資薪酬招募管理", "生產工單", "理賠案件管理平台", "ESG 能源與碳管理平台"];
   const showcase = showcaseNames
     .map((name) => products.find((product) => product.name === name))
     .filter((product) => product !== undefined);
@@ -35,12 +35,13 @@ export default async function Home({ searchParams }: HomeProps) {
           <nav aria-label="主要導覽">
             <a href="#curator-categories">分類</a>
             <a href="#gallery">全部 Demo</a>
+            <a href="https://github.com/yunghua817">我的 GitHub ↗</a>
             <a className="curator-nav-action" href="#gallery">開始探索</a>
           </nav>
         </header>
 
         <section className="curator-hero" id="top">
-          <span className="curator-label">64 Interactive Demos · 8 Collections</span>
+          <span className="curator-label">{products.length} Interactive Demos · {categories.length} Collections</span>
           <h1>一個地方，探索<br />Jvision 的每一套系統</h1>
           <p>從產業情境出發，看見系統如何真正運作。選一個感興趣的展品，直接進入 Demo 體驗。</p>
           <div className="curator-actions">
@@ -83,7 +84,7 @@ export default async function Home({ searchParams }: HomeProps) {
 
       <footer>
         <div><img src={logoUrl} alt="JVision" /><strong>Jvision Demo 展示館</strong></div>
-        <span>64 套可操作的 Jvision 系統展示。</span>
+        <span>{products.length} 套可操作的 Jvision 系統展示。</span>
       </footer>
     </main>
   );
