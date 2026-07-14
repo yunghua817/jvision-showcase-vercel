@@ -4,6 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import type { Product } from "../data/products";
 
 const tones = ["coral", "teal", "blue", "amber", "violet", "green"];
+const pageSize = 12;
 
 export function ShowcaseGallery({
   products,
@@ -16,6 +17,7 @@ export function ShowcaseGallery({
 }) {
   const [query, setQuery] = useState("");
   const [category, setCategory] = useState(initialCategory);
+  const [page, setPage] = useState(1);
   const [posterProduct, setPosterProduct] = useState<Product | null>(null);
 
   useEffect(() => {
@@ -41,6 +43,14 @@ export function ShowcaseGallery({
     });
   }, [category, products, query]);
 
+  const totalPages = Math.max(1, Math.ceil(filtered.length / pageSize));
+  const visibleProducts = filtered.slice((page - 1) * pageSize, page * pageSize);
+
+  function goToPage(nextPage: number) {
+    setPage(nextPage);
+    document.querySelector(".result-row")?.scrollIntoView({ behavior: "smooth", block: "start" });
+  }
+
   return (
     <>
       <section className="explore" id="gallery">
@@ -58,7 +68,10 @@ export function ShowcaseGallery({
             <input
               type="search"
               value={query}
-              onChange={(event) => setQuery(event.target.value)}
+              onChange={(event) => {
+                setQuery(event.target.value);
+                setPage(1);
+              }}
               placeholder="搜尋系統、功能或產業，例如：人資、庫存、照護"
               aria-label="搜尋 Demo"
             />
@@ -68,7 +81,10 @@ export function ShowcaseGallery({
               <button
                 type="button"
                 className={category === item ? "active" : ""}
-                onClick={() => setCategory(item)}
+                onClick={() => {
+                  setCategory(item);
+                  setPage(1);
+                }}
                 key={item}
               >
                 {item}
@@ -79,49 +95,68 @@ export function ShowcaseGallery({
 
         <div className="result-row">
           <strong>{filtered.length} 個 Demo</strong>
-          <span>{category === "全部" ? "顯示所有分類" : `目前分類：${category}`}</span>
+          <span>第 {page} / {totalPages} 頁 · {category === "全部" ? "顯示所有分類" : `目前分類：${category}`}</span>
         </div>
 
         {filtered.length ? (
-          <div className="gallery-grid">
-            {filtered.map((product) => (
-              <article className="demo-card" data-slug={product.slug} key={product.slug}>
-                <div className="card-main">
-                  <div className={`card-visual tone-${tones[(product.id - 1) % tones.length]}`}>
-                    <span>{product.category}</span>
-                    <b>{String(product.id).padStart(2, "0")}</b>
-                    <strong>{product.name}</strong>
-                    <i>JV</i>
-                  </div>
-                  <div className="card-copy">
-                    <div className="card-meta">
+          <>
+            <div className="gallery-grid">
+              {visibleProducts.map((product) => (
+                <article className="demo-card" data-slug={product.slug} key={product.slug}>
+                  <div className="card-main">
+                    <div className={`card-visual tone-${tones[(product.id - 1) % tones.length]}`}>
                       <span>{product.category}</span>
-                      <span className="live-dot">可直接體驗</span>
+                      <b>{String(product.id).padStart(2, "0")}</b>
+                      <strong>{product.name}</strong>
+                      <i>JV</i>
                     </div>
-                    <h3>{product.name}</h3>
-                    <p>{product.description.replace(/ Demo$/i, "")}</p>
-                    <small>{product.module}</small>
+                    <div className="card-copy">
+                      <div className="card-meta">
+                        <span>{product.category}</span>
+                        <span className="live-dot">可直接體驗</span>
+                      </div>
+                      <h3>{product.name}</h3>
+                      <p>{product.description.replace(/ Demo$/i, "")}</p>
+                      <small>{product.module}</small>
+                    </div>
                   </div>
-                </div>
-                <div className="card-actions">
-                  <button type="button" className="poster-button" onClick={() => setPosterProduct(product)}>
-                    查看海報
+                  <div className="card-actions">
+                    <button type="button" className="poster-button" onClick={() => setPosterProduct(product)}>
+                      查看海報
+                    </button>
+                    <a className="github-button" href={product.githubUrl}>
+                      GitHub <span aria-hidden="true">↗</span>
+                    </a>
+                    <a className="open-demo" href={product.demoUrl}>
+                      進入 Demo <span aria-hidden="true">↗</span>
+                    </a>
+                  </div>
+                </article>
+              ))}
+            </div>
+            {totalPages > 1 ? (
+              <nav className="pagination" aria-label="Demo 分頁">
+                <button type="button" className="page-direction" disabled={page === 1} onClick={() => goToPage(page - 1)}>← 上一頁</button>
+                {Array.from({ length: totalPages }, (_, index) => index + 1).map((pageNumber) => (
+                  <button
+                    type="button"
+                    className={page === pageNumber ? "active" : ""}
+                    aria-current={page === pageNumber ? "page" : undefined}
+                    onClick={() => goToPage(pageNumber)}
+                    key={pageNumber}
+                  >
+                    {pageNumber}
                   </button>
-                  <a className="github-button" href={product.githubUrl}>
-                    GitHub <span aria-hidden="true">↗</span>
-                  </a>
-                  <a className="open-demo" href={product.demoUrl}>
-                    進入 Demo <span aria-hidden="true">↗</span>
-                  </a>
-                </div>
-              </article>
-            ))}
-          </div>
+                ))}
+                <button type="button" className="page-direction" disabled={page === totalPages} onClick={() => goToPage(page + 1)}>下一頁 →</button>
+              </nav>
+            ) : null}
+          </>
         ) : (
           <div className="empty-state">
             <strong>目前找不到符合的 Demo</strong>
             <p>可以換一個關鍵字，或切回「全部」分類。</p>
-            <button type="button" onClick={() => { setQuery(""); setCategory("全部"); }}>清除篩選</button>
+            <button type="button" onClick={() => { setQuery(""); setCategory("全部"); setPage(1); }}>清除篩選</button>
           </div>
         )}
       </section>
