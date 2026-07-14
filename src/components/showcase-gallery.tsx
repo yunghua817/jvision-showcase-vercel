@@ -1,7 +1,9 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import type { Product } from "../data/products";
+
+const tones = ["coral", "teal", "blue", "amber", "violet", "green"];
 
 export function ShowcaseGallery({
   products,
@@ -14,6 +16,21 @@ export function ShowcaseGallery({
 }) {
   const [query, setQuery] = useState("");
   const [category, setCategory] = useState(initialCategory);
+  const [posterProduct, setPosterProduct] = useState<Product | null>(null);
+
+  useEffect(() => {
+    if (!posterProduct) return;
+    const previousOverflow = document.body.style.overflow;
+    const closeOnEscape = (event: KeyboardEvent) => {
+      if (event.key === "Escape") setPosterProduct(null);
+    };
+    document.body.style.overflow = "hidden";
+    window.addEventListener("keydown", closeOnEscape);
+    return () => {
+      document.body.style.overflow = previousOverflow;
+      window.removeEventListener("keydown", closeOnEscape);
+    };
+  }, [posterProduct]);
 
   const filtered = useMemo(() => {
     const needle = query.trim().toLocaleLowerCase("zh-TW");
@@ -68,17 +85,13 @@ export function ShowcaseGallery({
         {filtered.length ? (
           <div className="gallery-grid">
             {filtered.map((product) => (
-              <article className="demo-card" key={product.slug}>
-                <a className="card-main" href={product.demoUrl} aria-label={`開啟 ${product.name} Demo`}>
-                  <div className="card-poster">
-                    <img
-                      src={`/posters/${product.slug}.png`}
-                      alt={`${product.name} 產品海報`}
-                      width="1240"
-                      height="1754"
-                      loading="lazy"
-                      decoding="async"
-                    />
+              <article className="demo-card" data-slug={product.slug} key={product.slug}>
+                <div className="card-main">
+                  <div className={`card-visual tone-${tones[(product.id - 1) % tones.length]}`}>
+                    <span>{product.category}</span>
+                    <b>{String(product.id).padStart(2, "0")}</b>
+                    <strong>{product.name}</strong>
+                    <i>JV</i>
                   </div>
                   <div className="card-copy">
                     <div className="card-meta">
@@ -89,10 +102,15 @@ export function ShowcaseGallery({
                     <p>{product.description.replace(/ Demo$/i, "")}</p>
                     <small>{product.module}</small>
                   </div>
-                </a>
-                <a className="open-demo" href={product.demoUrl}>
-                  進入 Demo <span aria-hidden="true">↗</span>
-                </a>
+                </div>
+                <div className="card-actions">
+                  <button type="button" className="poster-button" onClick={() => setPosterProduct(product)}>
+                    查看海報
+                  </button>
+                  <a className="open-demo" href={product.demoUrl}>
+                    進入 Demo <span aria-hidden="true">↗</span>
+                  </a>
+                </div>
               </article>
             ))}
           </div>
@@ -104,6 +122,30 @@ export function ShowcaseGallery({
           </div>
         )}
       </section>
+
+      {posterProduct ? (
+        <div
+          className="poster-modal"
+          role="presentation"
+          onMouseDown={(event) => {
+            if (event.currentTarget === event.target) setPosterProduct(null);
+          }}
+        >
+          <section className="poster-dialog" role="dialog" aria-modal="true" aria-label={`${posterProduct.name} 產品海報`}>
+            <div className="poster-dialog-header">
+              <div><span>產品海報</span><strong>{posterProduct.name}</strong></div>
+              <button type="button" onClick={() => setPosterProduct(null)} aria-label="關閉海報">×</button>
+            </div>
+            <div className="poster-dialog-body">
+              <img src={`/posters/${posterProduct.slug}.png`} alt={`${posterProduct.name} 產品海報`} width="1240" height="1754" />
+            </div>
+            <div className="poster-dialog-actions">
+              <button type="button" onClick={() => setPosterProduct(null)}>返回展示館</button>
+              <a href={posterProduct.demoUrl}>進入 Demo <span aria-hidden="true">↗</span></a>
+            </div>
+          </section>
+        </div>
+      ) : null}
     </>
   );
 }

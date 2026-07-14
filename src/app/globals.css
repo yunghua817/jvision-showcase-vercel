@@ -129,13 +129,6 @@ h1 { max-width: 850px; margin: 0 0 26px; color: #10243f; font-size: clamp(48px, 
 .demo-card { overflow: hidden; border: 1px solid #d6e0e7; border-radius: 26px; background: #fff; box-shadow: 0 18px 50px rgba(22,45,68,.07); transition: transform .2s ease, box-shadow .2s ease; }
 .demo-card:hover { transform: translateY(-5px); box-shadow: 0 24px 60px rgba(22,45,68,.12); }
 .card-main { display: block; padding: 16px 16px 0; }
-.card-poster { position: relative; display: flex; height: 245px; align-items: flex-start; justify-content: center; overflow: hidden; border: 1px solid #dfe7e7; border-radius: 19px; padding: 34px 34px 0; background: linear-gradient(145deg, #e8f4ef, #f7eee7); }
-.card-poster::before { content: "海報預覽"; position: absolute; top: 13px; left: 14px; z-index: 2; border-radius: 999px; padding: 6px 9px; background: rgba(22,52,50,.88); color: #fff; font-size: 11px; font-weight: 900; letter-spacing: .04em; }
-.card-poster::after { content: ""; position: absolute; right: 0; bottom: 0; left: 0; height: 45px; background: linear-gradient(transparent, rgba(20,45,43,.12)); pointer-events: none; }
-.card-poster img { display: block; width: min(100%, 300px); height: auto; border-radius: 10px 10px 0 0; box-shadow: 0 15px 35px rgba(29,54,52,.18); transition: transform .35s ease; }
-.demo-card:nth-child(3n + 2) .card-poster { background: linear-gradient(145deg, #edf1f8, #f5eef6); }
-.demo-card:nth-child(3n) .card-poster { background: linear-gradient(145deg, #f5f0e5, #eaf4f3); }
-.demo-card:hover .card-poster img { transform: translateY(-8px); }
 .card-visual { position: relative; display: grid; min-height: 215px; align-content: end; overflow: hidden; border-radius: 19px; padding: 22px; color: #fff; }
 .card-visual::after { content: ""; position: absolute; inset: auto -30px -65px auto; width: 180px; height: 180px; border: 1px solid rgba(255,255,255,.28); border-radius: 50%; }
 .card-visual > span { position: absolute; top: 20px; left: 20px; border-radius: 999px; padding: 7px 10px; background: rgba(255,255,255,.16); font-size: 12px; font-weight: 900; backdrop-filter: blur(9px); }
@@ -154,8 +147,25 @@ h1 { max-width: 850px; margin: 0 0 26px; color: #10243f; font-size: clamp(48px, 
 .card-copy h3 { margin: 14px 0 10px; font-size: 24px; line-height: 1.25; }
 .card-copy p { min-height: 76px; margin-bottom: 14px; color: var(--muted); line-height: 1.65; }
 .card-copy small { display: block; overflow: hidden; color: #8894a4; text-overflow: ellipsis; white-space: nowrap; }
-.open-demo { display: flex; justify-content: space-between; align-items: center; min-height: 52px; border-top: 1px solid #e3eaef; padding: 0 22px; color: var(--navy); font-weight: 900; }
+.card-actions { display: grid; grid-template-columns: .85fr 1.15fr; border-top: 1px solid #e3eaef; }
+.poster-button, .open-demo { display: flex; min-height: 54px; align-items: center; justify-content: center; border: 0; background: #fff; color: var(--navy); cursor: pointer; font: inherit; font-weight: 900; }
+.poster-button { border-right: 1px solid #e3eaef; color: var(--teal); }
+.poster-button:hover { background: #eef7f5; }
+.open-demo { justify-content: space-between; padding: 0 22px; }
+.open-demo:hover { background: #f5f7fa; }
 .open-demo span { font-size: 19px; }
+.poster-modal { position: fixed; inset: 0; z-index: 1000; display: grid; place-items: center; padding: 24px; background: rgba(8,22,31,.76); backdrop-filter: blur(12px); }
+.poster-dialog { display: grid; width: min(940px,100%); max-height: calc(100vh - 48px); grid-template-rows: auto minmax(0,1fr) auto; overflow: hidden; border-radius: 26px; background: #f5f7f6; box-shadow: 0 35px 100px rgba(0,0,0,.36); }
+.poster-dialog-header { display: flex; align-items: center; justify-content: space-between; gap: 20px; padding: 18px 22px; background: #fff; }
+.poster-dialog-header > div { display: grid; gap: 3px; }
+.poster-dialog-header span { color: var(--teal); font-size: 11px; font-weight: 900; letter-spacing: .08em; }
+.poster-dialog-header strong { font-size: 20px; }
+.poster-dialog-header button { width: 40px; height: 40px; border: 0; border-radius: 50%; background: #edf2f0; color: var(--navy); cursor: pointer; font-size: 27px; line-height: 1; }
+.poster-dialog-body { overflow: auto; padding: 24px; text-align: center; }
+.poster-dialog-body img { display: block; width: min(620px,100%); height: auto; margin: 0 auto; border-radius: 14px; box-shadow: 0 20px 55px rgba(26,48,49,.18); }
+.poster-dialog-actions { display: flex; justify-content: flex-end; gap: 10px; padding: 15px 20px; background: #fff; }
+.poster-dialog-actions button, .poster-dialog-actions a { display: inline-flex; min-height: 44px; align-items: center; justify-content: center; border: 1px solid #d7e1df; border-radius: 999px; padding: 0 18px; background: #fff; color: var(--navy); cursor: pointer; font: inherit; font-weight: 900; }
+.poster-dialog-actions a { border-color: var(--navy); background: var(--navy); color: #fff; }
 .empty-state { border: 1px dashed #bac9d4; border-radius: 24px; padding: 50px 24px; background: rgba(255,255,255,.68); text-align: center; }
 .empty-state strong { font-size: 22px; }
 .empty-state p { margin: 10px 0 20px; color: var(--muted); }
@@ -199,7 +209,10 @@ footer img { width: 126px; }
   .highlight-grid, .gallery-grid, .explore-heading, .detail-content { grid-template-columns: 1fr; }
   .filter-panel { position: static; }
   .result-row, footer { align-items: flex-start; flex-direction: column; }
-  .card-poster { height: 225px; padding: 32px 24px 0; }
+  .poster-modal { padding: 10px; }
+  .poster-dialog { max-height: calc(100vh - 20px); border-radius: 20px; }
+  .poster-dialog-body { padding: 12px; }
+  .poster-dialog-actions { display: grid; grid-template-columns: 1fr 1fr; }
   .card-copy p { min-height: 0; }
 }
 
