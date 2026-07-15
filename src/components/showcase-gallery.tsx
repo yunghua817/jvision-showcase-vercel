@@ -2,8 +2,15 @@
 
 import { useEffect, useMemo, useState } from "react";
 import type { Product } from "../data/products";
+import repositoryDates from "../data/repository-dates.json";
 
 const tones = ["coral", "teal", "blue", "amber", "violet", "green"];
+type HealthInfo = { status: "checking" | "online" | "offline" | "unknown"; createdAt?: string; updatedAt?: string };
+const repositoryDateMap = repositoryDates as Record<string, { created_at: string; pushed_at: string }>;
+
+function getRepositoryDates(product: Product) {
+  return repositoryDateMap[product.githubUrl.replace(/\/$/, "").toLowerCase()];
+}
 const categoryStyles: Record<string, { tone: string; mark: string }> = {
   "製造與工程": { tone: "teal", mark: "製" },
   "協作與管理": { tone: "green", mark: "協" },
@@ -29,6 +36,13 @@ export function ShowcaseGallery({
   const [page, setPage] = useState(1);
   const [sort, setSort] = useState("recommended");
   const [pageSize, setPageSize] = useState(12);
+  const [viewMode, setViewMode] = useState<"cards" | "list">("cards");
+  const [health, setHealth] = useState<Record<string, HealthInfo>>(() => Object.fromEntries(
+    products.map((product) => {
+      const dates = getRepositoryDates(product);
+      return [product.slug, { status: "checking", createdAt: dates?.created_at, updatedAt: dates?.pushed_at }];
+    }),
+  ));
   const [posterProduct, setPosterProduct] = useState<Product | null>(null);
 
   useEffect(() => {
@@ -55,7 +69,16 @@ export function ShowcaseGallery({
   }, [category, products, query]);
 
   const sortedProducts = useMemo(() => {
-    if (sort === "newest") return [...filtered].sort((left, right) => right.id - left.id);
+    if (sort === "newest") return [...filtered].sort((left, right) => {
+      const leftDate = getRepositoryDates(left)?.created_at;
+      const rightDate = getRepositoryDates(right)?.created_at;
+      return (rightDate ? Date.parse(rightDate) : right.id) - (leftDate ? Date.parse(leftDate) : left.id);
+    });
+    if (sort === "updated") return [...filtered].sort((left, right) => {
+      const leftDate = getRepositoryDates(left)?.pushed_at;
+      const rightDate = getRepositoryDates(right)?.pushed_at;
+      return (rightDate ? Date.parse(rightDate) : right.id) - (leftDate ? Date.parse(leftDate) : left.id);
+    });
     if (sort === "name") return [...filtered].sort((left, right) => left.name.localeCompare(right.name, "zh-TW"));
     if (sort === "category") return [...filtered].sort((left, right) => left.category.localeCompare(right.category, "zh-TW") || left.name.localeCompare(right.name, "zh-TW"));
     return filtered;
@@ -63,6 +86,43 @@ export function ShowcaseGallery({
 
   const totalPages = Math.max(1, Math.ceil(sortedProducts.length / pageSize));
   const visibleProducts = sortedProducts.slice((page - 1) * pageSize, page * pageSize);
+  const visibleSlugKey = visibleProducts.map((product) => product.slug).join(",");
+
+  useEffect(() => {
+    if (!visibleSlugKey) return;
+    const controller = new AbortController();
+    const slugs = visibleSlugKey.split(",");
+    setHealth((current) => ({
+      ...current,
+      ...Object.fromEntries(slugs.map((slug) => [slug, { ...current[slug], status: "checking" as const }])),
+    }));
+    fetch("/api/demo-health", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ slugs }),
+      signal: controller.signal,
+    })
+      .then((response) => response.ok ? response.json() : Promise.reject(new Error("health check failed")))
+      .then((data: { results: Record<string, HealthInfo> }) => setHealth((current) => ({ ...current, ...data.results })))
+      .catch((error: Error) => {
+        if (error.name !== "AbortError") {
+          setHealth((current) => ({
+            ...current,
+            ...Object.fromEntries(slugs.map((slug) => [slug, { ...current[slug], status: "unknown" as const }])),
+          }));
+        }
+      });
+    return () => controller.abort();
+  }, [visibleSlugKey]);
+
+  function formatDate(value?: string) {
+    if (!value) return "";
+    return new Intl.DateTimeFormat("zh-TW", { year: "numeric", month: "2-digit", day: "2-digit" }).format(new Date(value));
+  }
+
+  function isRecent(value?: string) {
+    return Boolean(value) && Date.now() - new Date(value as string).getTime() < 45 * 24 * 60 * 60 * 1000;
+  }
 
   function goToPage(nextPage: number) {
     setPage(nextPage);
@@ -114,10 +174,15 @@ export function ShowcaseGallery({
         <div className="result-row">
           <div><strong>{filtered.length} 個 Demo</strong><span>第 {page} / {totalPages} 頁 · {category === "全部" ? "顯示所有分類" : `目前分類：${category}`}</span></div>
           <div className="result-controls">
+            <div className="view-switch" aria-label="顯示方式">
+              <button type="button" className={viewMode === "cards" ? "active" : ""} onClick={() => setViewMode("cards")} aria-pressed={viewMode === "cards"}>卡片</button>
+              <button type="button" className={viewMode === "list" ? "active" : ""} onClick={() => setViewMode("list")} aria-pressed={viewMode === "list"}>列表</button>
+            </div>
             <label>排序
               <select value={sort} onChange={(event) => { setSort(event.target.value); setPage(1); }}>
                 <option value="recommended">推薦排序</option>
                 <option value="newest">最近新增</option>
+                <option value="updated">最近更新</option>
                 <option value="name">名稱 A–Z</option>
                 <option value="category">依分類</option>
               </select>
@@ -134,8 +199,11 @@ export function ShowcaseGallery({
 
         {filtered.length ? (
           <>
-            <div className="gallery-grid">
-              {visibleProducts.map((product) => (
+            <div className={`gallery-grid ${viewMode === "list" ? "list-view" : ""}`}>
+              {visibleProducts.map((product) => {
+                const info = health[product.slug];
+                const status = info?.status || "checking";
+                return (
                 <article className="demo-card" data-slug={product.slug} key={product.slug}>
                   <div className="card-main">
                     <div className={`card-visual tone-${categoryStyles[product.category]?.tone || tones[(product.id - 1) % tones.length]}`}>
@@ -146,12 +214,13 @@ export function ShowcaseGallery({
                     </div>
                     <div className="card-copy">
                       <div className="card-meta">
-                        <span>{product.category}</span>
-                        <span className="live-dot">可直接體驗</span>
+                        <span>{product.category}{isRecent(info?.createdAt) ? <b className="recent-badge">最近新增</b> : null}</span>
+                        <span className={`health-status status-${status}`}>{status === "online" ? "正常上線" : status === "offline" ? "暫時無法連線" : status === "unknown" ? "暫時無法確認" : "檢查中"}</span>
                       </div>
                       <h3>{product.name}</h3>
                       <p>{product.description.replace(/ Demo$/i, "")}</p>
                       <small>{product.module}</small>
+                      {info?.updatedAt ? <time dateTime={info.updatedAt}>{info.createdAt ? `新增於 ${formatDate(info.createdAt)} · ` : ""}更新於 {formatDate(info.updatedAt)}</time> : null}
                     </div>
                   </div>
                   <div className="card-actions">
@@ -166,7 +235,7 @@ export function ShowcaseGallery({
                     </a>
                   </div>
                 </article>
-              ))}
+              );})}
             </div>
             {totalPages > 1 ? (
               <nav className="pagination" aria-label="Demo 分頁">
