@@ -10,6 +10,13 @@ const repositoryDateMap = repositoryDates as Record<string, { created_at: string
 function getRepositoryDates(product: Product) {
   return repositoryDateMap[product.githubUrl.replace(/\/$/, "").toLowerCase()];
 }
+
+function getModuleMark(product: Product) {
+  const words = product.module.toUpperCase().match(/[A-Z0-9]+/g) ?? [];
+  if (words.length > 1) return words.map((word) => word[0]).join("").slice(0, 3);
+  if (words.length === 1) return words[0].slice(0, 3);
+  return [...product.name.replace(/\s/g, "")].slice(0, 2).join("");
+}
 const categoryStyles: Record<string, { tone: string; mark: string }> = {
   "製造與工程": { tone: "teal", mark: "製" },
   "協作與管理": { tone: "green", mark: "協" },
@@ -169,11 +176,11 @@ export function ShowcaseGallery({
                 return (
                 <article className="demo-card" data-slug={product.slug} key={product.slug}>
                   <div className="card-main">
-                    <div className={`card-visual tone-${categoryStyles[product.category]?.tone || tones[(product.id - 1) % tones.length]}`}>
+                    <div className={`card-visual visual-pattern-${product.id % 4} tone-${categoryStyles[product.category]?.tone || tones[(product.id - 1) % tones.length]}`}>
                       <span>{product.category}</span>
                       <b>{String(product.id).padStart(2, "0")}</b>
                       <strong>{product.name}</strong>
-                      <i aria-hidden="true">{categoryStyles[product.category]?.mark || "JV"}</i>
+                      <i aria-hidden="true">{getModuleMark(product)}</i>
                     </div>
                     <div className="card-copy">
                       <div className="card-meta">
