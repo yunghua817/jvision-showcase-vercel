@@ -4,7 +4,16 @@ import { useEffect, useMemo, useState } from "react";
 import type { Product } from "../data/products";
 
 const tones = ["coral", "teal", "blue", "amber", "violet", "green"];
-const pageSize = 12;
+const categoryStyles: Record<string, { tone: string; mark: string }> = {
+  "製造與工程": { tone: "teal", mark: "製" },
+  "協作與管理": { tone: "green", mark: "協" },
+  "ESG 與永續": { tone: "amber", mark: "綠" },
+  "金融與保險": { tone: "violet", mark: "財" },
+  "企業營運": { tone: "coral", mark: "營" },
+  "教育與照護": { tone: "blue", mark: "學" },
+  "交通與車輛": { tone: "blue", mark: "行" },
+  "零售與服務": { tone: "coral", mark: "店" },
+};
 
 export function ShowcaseGallery({
   products,
@@ -18,6 +27,8 @@ export function ShowcaseGallery({
   const [query, setQuery] = useState("");
   const [category, setCategory] = useState(initialCategory);
   const [page, setPage] = useState(1);
+  const [sort, setSort] = useState("recommended");
+  const [pageSize, setPageSize] = useState(12);
   const [posterProduct, setPosterProduct] = useState<Product | null>(null);
 
   useEffect(() => {
@@ -43,8 +54,15 @@ export function ShowcaseGallery({
     });
   }, [category, products, query]);
 
-  const totalPages = Math.max(1, Math.ceil(filtered.length / pageSize));
-  const visibleProducts = filtered.slice((page - 1) * pageSize, page * pageSize);
+  const sortedProducts = useMemo(() => {
+    if (sort === "newest") return [...filtered].sort((left, right) => right.id - left.id);
+    if (sort === "name") return [...filtered].sort((left, right) => left.name.localeCompare(right.name, "zh-TW"));
+    if (sort === "category") return [...filtered].sort((left, right) => left.category.localeCompare(right.category, "zh-TW") || left.name.localeCompare(right.name, "zh-TW"));
+    return filtered;
+  }, [filtered, sort]);
+
+  const totalPages = Math.max(1, Math.ceil(sortedProducts.length / pageSize));
+  const visibleProducts = sortedProducts.slice((page - 1) * pageSize, page * pageSize);
 
   function goToPage(nextPage: number) {
     setPage(nextPage);
@@ -94,8 +112,24 @@ export function ShowcaseGallery({
         </div>
 
         <div className="result-row">
-          <strong>{filtered.length} 個 Demo</strong>
-          <span>第 {page} / {totalPages} 頁 · {category === "全部" ? "顯示所有分類" : `目前分類：${category}`}</span>
+          <div><strong>{filtered.length} 個 Demo</strong><span>第 {page} / {totalPages} 頁 · {category === "全部" ? "顯示所有分類" : `目前分類：${category}`}</span></div>
+          <div className="result-controls">
+            <label>排序
+              <select value={sort} onChange={(event) => { setSort(event.target.value); setPage(1); }}>
+                <option value="recommended">推薦排序</option>
+                <option value="newest">最近新增</option>
+                <option value="name">名稱 A–Z</option>
+                <option value="category">依分類</option>
+              </select>
+            </label>
+            <label>每頁
+              <select value={pageSize} onChange={(event) => { setPageSize(Number(event.target.value)); setPage(1); }}>
+                <option value={12}>12 個</option>
+                <option value={24}>24 個</option>
+                <option value={60}>全部</option>
+              </select>
+            </label>
+          </div>
         </div>
 
         {filtered.length ? (
@@ -104,11 +138,11 @@ export function ShowcaseGallery({
               {visibleProducts.map((product) => (
                 <article className="demo-card" data-slug={product.slug} key={product.slug}>
                   <div className="card-main">
-                    <div className={`card-visual tone-${tones[(product.id - 1) % tones.length]}`}>
+                    <div className={`card-visual tone-${categoryStyles[product.category]?.tone || tones[(product.id - 1) % tones.length]}`}>
                       <span>{product.category}</span>
                       <b>{String(product.id).padStart(2, "0")}</b>
                       <strong>{product.name}</strong>
-                      <i>JV</i>
+                      <i aria-hidden="true">{categoryStyles[product.category]?.mark || "JV"}</i>
                     </div>
                     <div className="card-copy">
                       <div className="card-meta">

@@ -2,6 +2,16 @@ import { ShowcaseGallery } from "../components/showcase-gallery";
 import { getManagedProducts } from "../lib/products-store";
 
 const logoUrl = "https://www.jvision-ai.com/public/logo.png";
+const categoryMarks: Record<string, string> = {
+  "製造與工程": "製",
+  "協作與管理": "協",
+  "ESG 與永續": "綠",
+  "金融與保險": "財",
+  "企業營運": "營",
+  "教育與照護": "學",
+  "交通與車輛": "行",
+  "零售與服務": "店",
+};
 
 type HomeProps = {
   searchParams: Promise<{ category?: string | string[] }>;
@@ -60,6 +70,7 @@ export default async function Home({ searchParams }: HomeProps) {
             <a className={`curator-piece piece-${index + 1}`} href={product.demoUrl} key={product.slug}>
               <div className="piece-top"><span>{product.category}</span><small>0{index + 1}</small></div>
               <div className="piece-content">
+                <span className="piece-symbol" aria-hidden="true">{categoryMarks[product.category] || "JV"}</span>
                 <strong>{product.name}</strong>
                 <p>{product.description}</p>
               </div>
