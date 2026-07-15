@@ -58,7 +58,7 @@ export default async function Home({ searchParams }: HomeProps) {
         </header>
 
         <section className="curator-hero" id="top">
-          <span className="curator-label">{products.length} Interactive Demos · {categories.length} Collections</span>
+          <span className="curator-label">{products.length} 個互動展示 · {categories.length} 個應用分類</span>
           <h1>探索 Jvision 的每一套系統</h1>
           <p>從產業情境出發，看見系統如何真正運作。選一個感興趣的展品，直接進入 Demo 體驗。</p>
           <div className="curator-actions">
