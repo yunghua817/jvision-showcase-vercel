@@ -360,6 +360,7 @@ footer img { width: 126px; }
 .piece-symbol { display: grid; width: 54px; height: 54px; place-items: center; margin-bottom: 18px; border: 1px solid rgba(255,255,255,.28); border-radius: 16px; background: rgba(255,255,255,.1); color: #fff; font-size: 22px; font-weight: 900; backdrop-filter: blur(8px); }
 .piece-content p { max-width: 620px; margin: 14px 0 0; color: rgba(255,255,255,.76); line-height: 1.65; }
 .piece-2 .piece-content strong, .piece-3 .piece-content strong { font-size: clamp(25px,3vw,38px); }
+.piece-2 .piece-symbol, .piece-3 .piece-symbol { display: none; }
 .piece-footer { border-top: 1px solid rgba(255,255,255,.22); padding-top: 16px; }
 .piece-footer b { color: #fff; }
 
