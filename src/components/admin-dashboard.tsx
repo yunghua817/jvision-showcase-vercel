@@ -1,9 +1,11 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import type { Product } from "../data/products";
 
 type Props = { initialProducts: Product[] };
+type HealthInfo = { status: "checking" | "online" | "offline" | "unknown" };
+type HealthFilter = "all" | "online" | "issues" | "checking";
 
 const emptyProduct = (id: number): Product => ({
   id, name: "新 Demo", module: "", description: "", demoUrl: "https://",
@@ -15,14 +17,81 @@ export function AdminDashboard({ initialProducts }: Props) {
   const [products, setProducts] = useState(initialProducts);
   const [selectedId, setSelectedId] = useState(initialProducts[0]?.id ?? 0);
   const [query, setQuery] = useState("");
+  const [healthFilter, setHealthFilter] = useState<HealthFilter>("all");
+  const [health, setHealth] = useState<Record<string, HealthInfo>>({});
+  const [lastCheckedAt, setLastCheckedAt] = useState<Date | null>(null);
   const [message, setMessage] = useState("");
   const [busy, setBusy] = useState(false);
   const selectedIndex = products.findIndex((product) => product.id === selectedId);
   const selected = products[selectedIndex];
   const filteredProducts = useMemo(() => {
     const keyword = query.trim().toLowerCase();
-    return keyword ? products.filter((product) => `${product.name} ${product.category} ${product.module}`.toLowerCase().includes(keyword)) : products;
-  }, [products, query]);
+    return products.filter((product) => {
+      const textMatch = !keyword || `${product.name} ${product.category} ${product.module}`.toLowerCase().includes(keyword);
+      const status = health[product.slug]?.status ?? "checking";
+      const healthMatch = healthFilter === "all" || (healthFilter === "issues" ? status === "offline" || status === "unknown" : status === healthFilter);
+      return textMatch && healthMatch;
+    });
+  }, [health, healthFilter, products, query]);
+
+  const healthCounts = useMemo(() => products.reduce((counts, product) => {
+    const status = health[product.slug]?.status ?? "checking";
+    counts.all += 1;
+    counts[status] += 1;
+    if (status === "offline" || status === "unknown") counts.issues += 1;
+    return counts;
+  }, { all: 0, online: 0, offline: 0, unknown: 0, issues: 0, checking: 0 }), [health, products]);
+
+  const productSlugKey = useMemo(() => products.map((product) => product.slug).join(","), [products]);
+
+  useEffect(() => {
+    if (!productSlugKey) return;
+    const controller = new AbortController();
+    const slugs = productSlugKey.split(",");
+    setHealth((current) => ({
+      ...current,
+      ...Object.fromEntries(slugs.map((slug) => [slug, { status: "checking" as const }])),
+    }));
+    fetch("/api/demo-health", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ slugs }),
+      signal: controller.signal,
+    })
+      .then((response) => response.ok ? response.json() : Promise.reject(new Error("health check failed")))
+      .then((data: { results: Record<string, HealthInfo> }) => {
+        setHealth((current) => ({ ...current, ...data.results }));
+        setLastCheckedAt(new Date());
+      })
+      .catch((error: Error) => {
+        if (error.name !== "AbortError") {
+          setHealth((current) => ({
+            ...current,
+            ...Object.fromEntries(slugs.map((slug) => [slug, { status: "unknown" as const }])),
+          }));
+        }
+      });
+    return () => controller.abort();
+  }, [productSlugKey]);
+
+  function selectHealthFilter(nextFilter: HealthFilter) {
+    setHealthFilter(nextFilter);
+    setQuery("");
+    if (nextFilter === "all") return;
+    const firstMatch = products.find((product) => {
+      const status = health[product.slug]?.status ?? "checking";
+      return nextFilter === "issues" ? status === "offline" || status === "unknown" : status === nextFilter;
+    });
+    if (firstMatch) setSelectedId(firstMatch.id);
+  }
+
+  function getHealthLabel(product: Product) {
+    const status = health[product.slug]?.status ?? "checking";
+    if (status === "online") return "正常";
+    if (status === "offline") return "離線";
+    if (status === "unknown") return "待確認";
+    return "檢查中";
+  }
 
   function updateSelected(field: keyof Product, value: string | boolean) {
     setProducts((current) => current.map((product) => product.id === selectedId ? { ...product, [field]: value } : product));
@@ -65,13 +134,34 @@ export function AdminDashboard({ initialProducts }: Props) {
         <div><span>Jvision Showcase</span><h1>Demo 管理後台</h1><p>共 {products.length} 個專案，變更後請按「儲存全部」。</p></div>
         <div className="admin-header-actions"><a href="/">← 返回展示館</a></div>
       </header>
+      <section className="health-overview admin-health-overview" aria-labelledby="admin-health-title">
+        <div className="health-overview-heading">
+          <div><span>內部維運</span><strong id="admin-health-title">Demo 網址健康總覽</strong></div>
+          <small aria-live="polite">{lastCheckedAt ? `最後檢查 ${lastCheckedAt.toLocaleTimeString("zh-TW", { hour: "2-digit", minute: "2-digit" })}` : "正在檢查全部網址"}</small>
+        </div>
+        <div className="health-summary-grid">
+          <button type="button" className={`health-summary-card summary-all ${healthFilter === "all" ? "active" : ""}`} onClick={() => selectHealthFilter("all")} aria-pressed={healthFilter === "all"}>
+            <span>全部 Demo</span><strong>{healthCounts.all}</strong><small>完整專案清單</small>
+          </button>
+          <button type="button" className={`health-summary-card summary-online ${healthFilter === "online" ? "active" : ""}`} onClick={() => selectHealthFilter("online")} aria-pressed={healthFilter === "online"}>
+            <span>正常上線</span><strong>{healthCounts.online}</strong><small>網址可正常開啟</small>
+          </button>
+          <button type="button" className={`health-summary-card summary-issues ${healthFilter === "issues" ? "active" : ""}`} onClick={() => selectHealthFilter("issues")} aria-pressed={healthFilter === "issues"}>
+            <span>異常 Demo</span><strong>{healthCounts.issues}</strong><small>離線 {healthCounts.offline} · 待確認 {healthCounts.unknown}</small>
+          </button>
+          <button type="button" className={`health-summary-card summary-checking ${healthFilter === "checking" ? "active" : ""}`} onClick={() => selectHealthFilter("checking")} aria-pressed={healthFilter === "checking"}>
+            <span>檢查中</span><strong>{healthCounts.checking}</strong><small>等待網址回應</small>
+          </button>
+        </div>
+      </section>
       <div className="admin-workspace">
         <aside className="admin-list-panel">
           <div className="admin-list-tools"><input aria-label="搜尋 Demo" placeholder="搜尋名稱、分類或模組" value={query} onChange={(event) => setQuery(event.target.value)} /><button type="button" onClick={addProduct}>＋ 新增 Demo</button></div>
           <div className="admin-product-list">
             {filteredProducts.map((product) => (
               <button type="button" className={product.id === selectedId ? "is-active" : ""} onClick={() => setSelectedId(product.id)} key={product.id}>
-                <span>{product.name}<small>{product.category}</small></span><i className={product.visible === false ? "is-hidden" : ""}>{product.visible === false ? "隱藏" : "公開"}</i>
+                <span>{product.name}<small>{product.category}</small></span>
+                <span className="admin-list-badges"><i className={`health-${health[product.slug]?.status ?? "checking"}`}>{getHealthLabel(product)}</i><i className={product.visible === false ? "is-hidden" : ""}>{product.visible === false ? "隱藏" : "公開"}</i></span>
               </button>
             ))}
           </div>

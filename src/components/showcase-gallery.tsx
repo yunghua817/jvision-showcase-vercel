@@ -5,8 +5,6 @@ import type { Product } from "../data/products";
 import repositoryDates from "../data/repository-dates.json";
 
 const tones = ["coral", "teal", "blue", "amber", "violet", "green"];
-type HealthInfo = { status: "checking" | "online" | "offline" | "unknown"; createdAt?: string; updatedAt?: string };
-type HealthFilter = "all" | "online" | "issues" | "checking";
 const repositoryDateMap = repositoryDates as Record<string, { created_at: string; pushed_at: string }>;
 
 function getRepositoryDates(product: Product) {
@@ -38,14 +36,6 @@ export function ShowcaseGallery({
   const [sort, setSort] = useState("recommended");
   const [pageSize, setPageSize] = useState(12);
   const [viewMode, setViewMode] = useState<"cards" | "list">("cards");
-  const [healthFilter, setHealthFilter] = useState<HealthFilter>("all");
-  const [health, setHealth] = useState<Record<string, HealthInfo>>(() => Object.fromEntries(
-    products.map((product) => {
-      const dates = getRepositoryDates(product);
-      return [product.slug, { status: "checking", createdAt: dates?.created_at, updatedAt: dates?.pushed_at }];
-    }),
-  ));
-  const [lastCheckedAt, setLastCheckedAt] = useState<Date | null>(null);
   const [posterProduct, setPosterProduct] = useState<Product | null>(null);
 
   useEffect(() => {
@@ -62,7 +52,7 @@ export function ShowcaseGallery({
     };
   }, [posterProduct]);
 
-  const matchedProducts = useMemo(() => {
+  const filtered = useMemo(() => {
     const needle = query.trim().toLocaleLowerCase("zh-TW");
     return products.filter((product) => {
       const categoryMatch = category === "全部" || product.category === category;
@@ -70,21 +60,6 @@ export function ShowcaseGallery({
       return categoryMatch && (!needle || text.includes(needle));
     });
   }, [category, products, query]);
-
-  const healthCounts = useMemo(() => matchedProducts.reduce((counts, product) => {
-    const status = health[product.slug]?.status ?? "checking";
-    counts.all += 1;
-    counts[status] += 1;
-    if (status === "offline" || status === "unknown") counts.issues += 1;
-    return counts;
-  }, { all: 0, online: 0, offline: 0, unknown: 0, issues: 0, checking: 0 }), [health, matchedProducts]);
-
-  const filtered = useMemo(() => matchedProducts.filter((product) => {
-    const status = health[product.slug]?.status ?? "checking";
-    if (healthFilter === "issues") return status === "offline" || status === "unknown";
-    if (healthFilter === "all") return true;
-    return status === healthFilter;
-  }), [health, healthFilter, matchedProducts]);
 
   const sortedProducts = useMemo(() => {
     if (sort === "newest") return [...filtered].sort((left, right) => {
@@ -104,38 +79,6 @@ export function ShowcaseGallery({
 
   const totalPages = Math.max(1, Math.ceil(sortedProducts.length / pageSize));
   const visibleProducts = sortedProducts.slice((page - 1) * pageSize, page * pageSize);
-  const productSlugKey = useMemo(() => products.map((product) => product.slug).join(","), [products]);
-
-  useEffect(() => {
-    if (!productSlugKey) return;
-    const controller = new AbortController();
-    const slugs = productSlugKey.split(",");
-    setHealth((current) => ({
-      ...current,
-      ...Object.fromEntries(slugs.map((slug) => [slug, { ...current[slug], status: "checking" as const }])),
-    }));
-    fetch("/api/demo-health", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ slugs }),
-      signal: controller.signal,
-    })
-      .then((response) => response.ok ? response.json() : Promise.reject(new Error("health check failed")))
-      .then((data: { results: Record<string, HealthInfo> }) => {
-        setHealth((current) => ({ ...current, ...data.results }));
-        setLastCheckedAt(new Date());
-      })
-      .catch((error: Error) => {
-        if (error.name !== "AbortError") {
-          setHealth((current) => ({
-            ...current,
-            ...Object.fromEntries(slugs.map((slug) => [slug, { ...current[slug], status: "unknown" as const }])),
-          }));
-        }
-      });
-    return () => controller.abort();
-  }, [productSlugKey]);
-
   function formatDate(value?: string) {
     if (!value) return "";
     return new Intl.DateTimeFormat("zh-TW", { year: "numeric", month: "2-digit", day: "2-digit" }).format(new Date(value));
@@ -143,11 +86,6 @@ export function ShowcaseGallery({
 
   function isRecent(value?: string) {
     return Boolean(value) && Date.now() - new Date(value as string).getTime() < 45 * 24 * 60 * 60 * 1000;
-  }
-
-  function selectHealthFilter(nextFilter: HealthFilter) {
-    setHealthFilter(nextFilter);
-    setPage(1);
   }
 
   function goToPage(nextPage: number) {
@@ -197,32 +135,8 @@ export function ShowcaseGallery({
           </div>
         </div>
 
-        <section className="health-overview" aria-labelledby="health-overview-title">
-          <div className="health-overview-heading">
-            <div>
-              <span>網址監測</span>
-              <strong id="health-overview-title">Demo 健康檢查總覽</strong>
-            </div>
-            <small aria-live="polite">{lastCheckedAt ? `最後檢查 ${lastCheckedAt.toLocaleTimeString("zh-TW", { hour: "2-digit", minute: "2-digit" })}` : "正在檢查全部網址"}</small>
-          </div>
-          <div className="health-summary-grid">
-            <button type="button" className={`health-summary-card summary-all ${healthFilter === "all" ? "active" : ""}`} onClick={() => selectHealthFilter("all")} aria-pressed={healthFilter === "all"}>
-              <span>全部 Demo</span><strong>{healthCounts.all}</strong><small>目前搜尋與分類</small>
-            </button>
-            <button type="button" className={`health-summary-card summary-online ${healthFilter === "online" ? "active" : ""}`} onClick={() => selectHealthFilter("online")} aria-pressed={healthFilter === "online"}>
-              <span>正常上線</span><strong>{healthCounts.online}</strong><small>網址可正常開啟</small>
-            </button>
-            <button type="button" className={`health-summary-card summary-issues ${healthFilter === "issues" ? "active" : ""}`} onClick={() => selectHealthFilter("issues")} aria-pressed={healthFilter === "issues"}>
-              <span>異常 Demo</span><strong>{healthCounts.issues}</strong><small>離線 {healthCounts.offline} · 待確認 {healthCounts.unknown}</small>
-            </button>
-            <button type="button" className={`health-summary-card summary-checking ${healthFilter === "checking" ? "active" : ""}`} onClick={() => selectHealthFilter("checking")} aria-pressed={healthFilter === "checking"}>
-              <span>檢查中</span><strong>{healthCounts.checking}</strong><small>等待網址回應</small>
-            </button>
-          </div>
-        </section>
-
         <div className="result-row">
-          <div><strong>{filtered.length} 個 Demo</strong><span>第 {page} / {totalPages} 頁 · {healthFilter === "issues" ? "只顯示異常與待確認" : healthFilter === "online" ? "只顯示正常上線" : healthFilter === "checking" ? "只顯示檢查中" : category === "全部" ? "顯示所有分類" : `目前分類：${category}`}</span></div>
+          <div><strong>{filtered.length} 個 Demo</strong><span>第 {page} / {totalPages} 頁 · {category === "全部" ? "顯示所有分類" : `目前分類：${category}`}</span></div>
           <div className="result-controls">
             <div className="view-switch" aria-label="顯示方式">
               <button type="button" className={viewMode === "cards" ? "active" : ""} onClick={() => setViewMode("cards")} aria-pressed={viewMode === "cards"}>卡片</button>
@@ -251,8 +165,7 @@ export function ShowcaseGallery({
           <>
             <div className={`gallery-grid ${viewMode === "list" ? "list-view" : ""}`}>
               {visibleProducts.map((product) => {
-                const info = health[product.slug];
-                const status = info?.status || "checking";
+                const dates = getRepositoryDates(product);
                 return (
                 <article className="demo-card" data-slug={product.slug} key={product.slug}>
                   <div className="card-main">
@@ -264,13 +177,12 @@ export function ShowcaseGallery({
                     </div>
                     <div className="card-copy">
                       <div className="card-meta">
-                        <span>{product.category}{isRecent(info?.createdAt) ? <b className="recent-badge">最近新增</b> : null}</span>
-                        <span className={`health-status status-${status}`}>{status === "online" ? "正常上線" : status === "offline" ? "暫時無法連線" : status === "unknown" ? "暫時無法確認" : "檢查中"}</span>
+                        <span>{product.category}{isRecent(dates?.created_at) ? <b className="recent-badge">最近新增</b> : null}</span>
                       </div>
                       <h3>{product.name}</h3>
                       <p>{product.description.replace(/ Demo$/i, "")}</p>
                       <small>{product.module}</small>
-                      {info?.updatedAt ? <time dateTime={info.updatedAt}>{info.createdAt ? `新增於 ${formatDate(info.createdAt)} · ` : ""}更新於 {formatDate(info.updatedAt)}</time> : null}
+                      {dates?.pushed_at ? <time dateTime={dates.pushed_at}>{dates.created_at ? `新增於 ${formatDate(dates.created_at)} · ` : ""}更新於 {formatDate(dates.pushed_at)}</time> : null}
                     </div>
                   </div>
                   <div className="card-actions">
@@ -307,9 +219,9 @@ export function ShowcaseGallery({
           </>
         ) : (
           <div className="empty-state">
-            <strong>{healthFilter === "issues" ? "目前沒有異常 Demo" : healthFilter === "checking" ? "所有網址都已完成檢查" : "目前找不到符合的 Demo"}</strong>
-            <p>{healthFilter === "issues" ? "目前範圍內的 Demo 網址皆可正常開啟。" : "請調整搜尋關鍵字、健康狀態或切換其他分類。"}</p>
-            <button type="button" onClick={() => { setQuery(""); setCategory("全部"); setHealthFilter("all"); setPage(1); }}>清除篩選</button>
+            <strong>目前找不到符合的 Demo</strong>
+            <p>可以換一個關鍵字，或切回「全部」分類。</p>
+            <button type="button" onClick={() => { setQuery(""); setCategory("全部"); setPage(1); }}>清除篩選</button>
           </div>
         )}
       </section>
