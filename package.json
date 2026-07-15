@@ -5,8 +5,7 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build",
-    "start": "next start",
-    "capture:thumbnails": "node scripts/capture-thumbnails.mjs"
+    "start": "next start"
   },
   "dependencies": {
     "@vercel/analytics": "latest",

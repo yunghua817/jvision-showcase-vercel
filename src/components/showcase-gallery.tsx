@@ -1,6 +1,5 @@
 "use client";
 
-import Image from "next/image";
 import { useEffect, useMemo, useState } from "react";
 import type { Product } from "../data/products";
 import repositoryDates from "../data/repository-dates.json";
@@ -171,10 +170,10 @@ export function ShowcaseGallery({
                 <article className="demo-card" data-slug={product.slug} key={product.slug}>
                   <div className="card-main">
                     <div className={`card-visual tone-${categoryStyles[product.category]?.tone || tones[(product.id - 1) % tones.length]}`}>
-                      <Image className="card-thumbnail" src={`/thumbnails/${product.slug}.jpg`} alt="" fill sizes="(max-width: 720px) calc(100vw - 72px), (max-width: 1100px) 45vw, 30vw" onError={(event) => { event.currentTarget.style.display = "none"; }} />
                       <span>{product.category}</span>
                       <b>{String(product.id).padStart(2, "0")}</b>
                       <strong>{product.name}</strong>
+                      <i aria-hidden="true">{categoryStyles[product.category]?.mark || "JV"}</i>
                     </div>
                     <div className="card-copy">
                       <div className="card-meta">
