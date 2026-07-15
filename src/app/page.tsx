@@ -37,11 +37,23 @@ export default async function Home({ searchParams }: HomeProps) {
             <span><strong>Jvision Demo 展示館</strong><small>Interactive Product Collection</small></span>
           </a>
           <nav aria-label="主要導覽">
-            <a href="#curator-categories">分類</a>
-            <a href="#gallery">全部 Demo</a>
-            <a href="https://github.com/yunghua817">我的 GitHub ↗</a>
-            <a className="curator-admin-link" href="/admin">管理後台</a>
-            <a className="curator-nav-action" href="#gallery">開始探索</a>
+            <div className="curator-nav-links">
+              <a href="#curator-categories">分類</a>
+              <a href="#gallery">全部 Demo</a>
+              <a href="https://github.com/yunghua817">我的 GitHub ↗</a>
+              <a className="curator-admin-link" href="/admin">管理後台</a>
+              <a className="curator-nav-action" href="#gallery">開始探索</a>
+            </div>
+            <details className="curator-mobile-menu">
+              <summary>選單</summary>
+              <div>
+                <a href="#curator-categories">分類探索</a>
+                <a href="#gallery">全部 Demo</a>
+                <a href="https://github.com/yunghua817">我的 GitHub ↗</a>
+                <a href="/admin">管理後台</a>
+                <a className="curator-nav-action" href="#gallery">開始探索</a>
+              </div>
+            </details>
           </nav>
         </header>
 
