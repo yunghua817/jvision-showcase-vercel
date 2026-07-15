@@ -349,7 +349,8 @@ footer img { width: 126px; }
 .curator-piece { display: flex; min-width: 0; justify-content: space-between; flex-direction: column; overflow: hidden; border-radius: 24px; padding: 22px; color: #fff; box-shadow: 0 18px 45px rgba(49,55,53,.09); }
 .piece-1 { grid-column: span 7; grid-row: span 2; background: linear-gradient(145deg,#eb9678,#4a7c80); }
 .piece-1 { justify-content: flex-start; }
-.piece-1 .piece-content { margin-top: 24px; }
+.piece-1 .piece-content { margin-top: 36px; }
+.piece-1 .piece-symbol { width: 48px; height: 48px; margin-bottom: 16px; }
 .piece-1 .piece-footer { margin-top: auto; }
 .piece-2 { grid-column: span 5; background: linear-gradient(145deg,#2b4946,#4e6c65); }
 .piece-3 { grid-column: span 5; background: linear-gradient(145deg,#a97872,#605d76); }
