@@ -23,11 +23,6 @@ export default async function Home({ searchParams }: HomeProps) {
     .map((name) => products.find((product) => product.name === name))
     .filter((product) => product !== undefined);
 
-  const categoryOverview = categories.map((name) => ({
-    name,
-    count: products.filter((product) => product.category === name).length,
-  }));
-
   return (
     <main className="curator-page">
       <div className="curator-shell">
@@ -38,7 +33,7 @@ export default async function Home({ searchParams }: HomeProps) {
           </a>
           <nav aria-label="主要導覽">
             <div className="curator-nav-links">
-              <a href="#curator-categories">分類</a>
+              <a href="#gallery">分類</a>
               <a href="#gallery">全部 Demo</a>
               <a href="https://github.com/yunghua817">我的 GitHub ↗</a>
               <a className="curator-admin-link" href="/admin">管理後台</a>
@@ -47,7 +42,7 @@ export default async function Home({ searchParams }: HomeProps) {
             <details className="curator-mobile-menu">
               <summary>選單</summary>
               <div>
-                <a href="#curator-categories">分類探索</a>
+                <a href="#gallery">分類探索</a>
                 <a href="#gallery">全部 Demo</a>
                 <a href="https://github.com/yunghua817">我的 GitHub ↗</a>
                 <a href="/admin">管理後台</a>
@@ -63,7 +58,7 @@ export default async function Home({ searchParams }: HomeProps) {
           <p>從產業情境出發，看見系統如何真正運作。選一個感興趣的展品，直接進入 Demo 體驗。</p>
           <div className="curator-actions">
             <a href="#showcase">看看精選系統</a>
-            <a href="#curator-categories">依分類探索</a>
+            <a href="#gallery">依分類探索</a>
           </div>
         </section>
 
@@ -111,21 +106,6 @@ export default async function Home({ searchParams }: HomeProps) {
           ))}
         </section>
 
-        <section className="curator-categories" id="curator-categories">
-          <div className="curator-section-heading">
-            <div><span>Explore by collection</span><h2>從工作情境開始選</h2></div>
-            <p>點擊分類後，會直接帶你到該分類的完整專案清單。</p>
-          </div>
-          <div className="curator-category-grid">
-            {categoryOverview.map((category, index) => (
-              <a href={`/?category=${encodeURIComponent(category.name)}#gallery`} key={category.name}>
-                <span>{String(index + 1).padStart(2, "0")}</span>
-                <strong>{category.name}</strong>
-                <small>{category.count} 套 Demo <b>→</b></small>
-              </a>
-            ))}
-          </div>
-        </section>
       </div>
 
       <ShowcaseGallery products={products} categories={categories} initialCategory={initialCategory} />
