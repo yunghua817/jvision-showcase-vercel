@@ -1,3 +1,4 @@
+import Image from "next/image";
 import { ShowcaseGallery } from "../components/showcase-gallery";
 import { getManagedProducts } from "../lib/products-store";
 
@@ -70,6 +71,7 @@ export default async function Home({ searchParams }: HomeProps) {
         <section className="curator-showcase" id="showcase" aria-label="精選 Demo">
           {showcase.map((product, index) => (
             <a className={`curator-piece piece-${index + 1}`} href={product.demoUrl} key={product.slug}>
+              <Image className="curator-piece-image" src={`/thumbnails/${product.slug}.jpg`} alt="" fill sizes="(max-width: 680px) calc(100vw - 30px), 50vw" priority={index < 2} />
               <div className="piece-top"><span>{product.category}</span><small>0{index + 1}</small></div>
               <div className="piece-content">
                 <strong>{product.name}</strong>
