@@ -52,19 +52,20 @@ export default async function Home({ searchParams }: HomeProps) {
           </nav>
         </header>
 
-        <section className="curator-hero" id="top">
-          <span className="curator-label">{products.length} 個互動展示 · {categories.length} 個應用分類</span>
-          <h1>探索 Jvision 的每一套系統</h1>
-          <p>從產業情境出發，看見系統如何真正運作。選一個感興趣的展品，直接進入 Demo 體驗。</p>
-          <div className="curator-actions">
-            <a href="#showcase">看看精選系統</a>
-            <a href="#gallery">依分類探索</a>
-          </div>
-        </section>
+        <div className="curator-stage">
+          <section className="curator-hero" id="top">
+            <span className="curator-label">{products.length} 個互動展示 · {categories.length} 個應用分類</span>
+            <h1>探索 Jvision 的每一套系統</h1>
+            <p>從產業情境出發，看見系統如何真正運作。選一個感興趣的展品，直接進入 Demo 體驗。</p>
+            <div className="curator-actions">
+              <a href="#showcase">看看精選系統</a>
+              <a href="#gallery">依分類探索</a>
+            </div>
+          </section>
 
-        <section className="curator-showcase" id="showcase" aria-label="精選 Demo">
-          {showcase.map((product, index) => (
-            <a className={`curator-piece piece-${index + 1}`} href={product.demoUrl} key={product.slug}>
+          <section className="curator-showcase" id="showcase" aria-label="精選 Demo">
+            {showcase.map((product, index) => (
+              <a className={`curator-piece piece-${index + 1}`} href={product.demoUrl} key={product.slug}>
               <div className="piece-copy">
                 <div className="piece-top"><span>{product.category}</span><small>0{index + 1}</small></div>
                 <div className="piece-content">
@@ -102,9 +103,10 @@ export default async function Home({ searchParams }: HomeProps) {
                   )}
                 </div>
               </div>
-            </a>
-          ))}
-        </section>
+              </a>
+            ))}
+          </section>
+        </div>
 
       </div>
 
